@@ -1,11 +1,19 @@
 import './index.scss';
-import { Card, Form, Input, Button } from 'antd';
+import { Card, Form, Input, Button, message } from 'antd';
 import logo from './../../assets/logo.jpeg';
+import { useDispatch } from 'react-redux';
+import { fetchLogin} from '../../store/modules/user';
+import { useNavigate } from 'react-router-dom'
 
 const Login = () => {
-    const onFinish = (values) => {
-        console.log('Success:', values);
-      };
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const onFinish = async (values) => {
+        await dispatch(fetchLogin(values));
+        // 跳轉首頁
+        navigate('/');
+        message.success('登入成功');
+    };
     return (
         <div className="login">
             <Card className="login-container">
@@ -17,11 +25,12 @@ const Login = () => {
                         // 多層驗證
                         rules={[{ required: true, message: '請輸入手機號碼' },
                         {
-                            pattern: /^09\d{2}-?\d{3}-?\d{3}$/,
+                            // pattern: /^09\d{2}-?\d{3}-?\d{3}$/,
                             message: '請輸入正確的手機格式'
                         }]}>
                         <Input size="large" placeholder="請輸入手機號碼" />
                     </Form.Item>
+                    <span>手機:13800000002 驗證碼:246810</span>
                     <Form.Item
                         name="code"
                         rules={[{ required: true, message: '請輸入驗證碼' }]}>

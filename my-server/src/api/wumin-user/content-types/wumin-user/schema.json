@@ -1,0 +1,21 @@
+{
+  "kind": "collectionType",
+  "collectionName": "wumin_users",
+  "info": {
+    "singularName": "wumin-user",
+    "pluralName": "wumin-users",
+    "displayName": "wumin-user"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "mobile": {
+      "type": "string"
+    },
+    "code": {
+      "type": "string"
+    }
+  }
+}

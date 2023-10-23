@@ -8,14 +8,28 @@ import {
     Upload,
     Space,
     Select
-} from 'antd'
-import { PlusOutlined } from '@ant-design/icons'
-import { Link } from 'react-router-dom'
-import './index.scss'
+} from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
+import { Link } from 'react-router-dom';
+import './index.scss';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+import { useEffect, useState } from 'react';
+import { getChannelAPI } from '../../api/article';
 
 const { Option } = Select
 
 const Publish = () => {
+    // 獲取頻道列表
+    const [channelList, setChannelList] = useState([])
+
+    useEffect(() => {
+        const getChannelList = async () => {
+            const res = await getChannelAPI();
+            setChannelList(res.data.channels)
+        }
+        getChannelList()
+    })
     return (
         <div className="publish">
             <Card
@@ -45,14 +59,21 @@ const Publish = () => {
                         rules={[{ required: true, message: '請選擇文章頻道' }]}
                     >
                         <Select placeholder="請選擇文章頻道" style={{ width: 400 }}>
-                            <Option value={0}>推薦</Option>
+                            {/* value被選中後會自動收集起來做完提交字段 */}
+                            {
+                                channelList.map(item => <Option key={item.id} value={item.id}>{item.name}</Option>)
+                            }
                         </Select>
                     </Form.Item>
                     <Form.Item
                         label="内容"
                         name="content"
                         rules={[{ required: true, message: '請輸入文章內容' }]}
-                    ><textarea name="" id="" cols="30" rows="10"></textarea></Form.Item>
+                    >  <ReactQuill
+                            className="publish-quill"
+                            theme="snow"
+                            placeholder="請輸入文章内容"
+                        /></Form.Item>
 
                     <Form.Item wrapperCol={{ offset: 4 }}>
                         <Space>

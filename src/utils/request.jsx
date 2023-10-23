@@ -1,5 +1,6 @@
 // 封裝處理
 import axios from 'axios';
+import { getToken } from './tokem';
 // 根域名配置
 // 超時時間
 // 添加請求攔截器 響應攔截器
@@ -13,6 +14,10 @@ const request = axios.create({
 // 添加請求攔截器
 // 在請求發送前做配置[參數處理]
 request.interceptors.request.use((config) => {
+    const token = getToken();
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
     return config
 }, (error) => {
     return Promise.reject(error)

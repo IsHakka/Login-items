@@ -5,6 +5,8 @@ import { Link } from 'react-router-dom'
 import { Card, Breadcrumb, Form, Button, Radio, DatePicker, Select } from 'antd'
 import locale from 'antd/es/date-picker/locale/zh_TW'
 import useChannel from '../../hooks/useChannel'
+import { useEffect, useState } from 'react'
+import { getArticleListAPI } from '../../api/article'
 
 const { Option } = Select
 const { RangePicker } = DatePicker
@@ -28,7 +30,7 @@ const Article = () => {
         {
             title: '狀態',
             dataIndex: 'status',
-            render: data => <Tag color="green">審核通過</Tag>
+            render: data => data === 1 ? <Tag color="warning">待審核</Tag>:<Tag color="success">審核通過</Tag>
         },
         {
             title: '發布時間',
@@ -78,6 +80,19 @@ const Article = () => {
             title: '離線解決方案'
         }
     ]
+
+    // 獲取文章列表
+    const [list,setlist] = useState([]);
+    const [count,setCount] = useState(0)
+
+    useEffect(()=>{
+        async function getList(){
+            const res = await getArticleListAPI()
+            setlist(res.data.results)
+            setCount(res.data.total_count)
+        }
+        getList()
+    },[])
     return (
 
         <div>
@@ -123,8 +138,9 @@ const Article = () => {
                 </Form>
             </Card>
 
-            <Card title={`根據條件共查詢到 count 調結果`}>
-                <Table rowKey="id" columns={columns} dataSource={data} />
+            <Card title={`根據條件共查詢到 ${count} 調結果`}>
+                
+                <Table rowKey="id" columns={columns} dataSource={list} />
             </Card>
         </div>
     );

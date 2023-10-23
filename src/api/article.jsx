@@ -7,7 +7,7 @@ export function getChannelAPI() {
         url: '/channels',
         method: 'GET',
     })
-}
+} 
 
 // 發布文章
 
@@ -16,5 +16,14 @@ export function createArticleAPI(data) {
         url: '/mp/articles?draft=false',
         method: 'POST',
         data
+    })
+}
+
+// 獲取文章列表
+export function getArticleListAPI(params) {
+    return request({
+        url:'/mp/articles',
+        method:'GET',
+        params
     })
 }

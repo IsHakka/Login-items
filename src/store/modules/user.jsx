@@ -1,17 +1,20 @@
 // 用戶相關狀態管理
 import { createSlice } from '@reduxjs/toolkit';
 import { request } from '../../utils/request';
+import { setToken as _setToken, getToken } from '../../utils/tokem';
 
 export const userStore = createSlice({
     name: 'user',
     // 數據狀態
     initialState: {
-        token: ''
+        token: getToken() || ''
     },
     // 同步修改方法
     reducers: {
         setToken(state, action) {
             state.token = action.payload;
+            // 存儲本地
+            _setToken(action.payload)
         }
     }
 });

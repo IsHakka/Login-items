@@ -7,7 +7,8 @@ import {
     Input,
     Upload,
     Space,
-    Select
+    Select,
+    message
 } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
@@ -33,18 +34,36 @@ const Publish = () => {
 
     const onFinish = (formValue) => {
         console.log(formValue);
+        //檢查封面數量是不是根圖片列表一樣
+        if(imageList.length !== imageType){
+            return message.warning('封面類型根所選圖片數量不一')
+        }
         const { content, title, channel_id } = formValue
+        // 按照文檔格式處理收集到的資料
         const reqData = {
             title,
             content,
             cover: {
-                type: 0,
-                images: []
+                type: imageType ,
+                images:imageList.map(item => item.response.data.url)
             },
             channel_id
         }
 
         createArticleAPI(reqData)
+    }
+    // 上傳回調
+    const [imageList, setImageList] = useState([])
+    const onChange = (value) => {
+        console.log('上傳中', value);
+        setImageList(value.fileList)
+        console.log(imageList);
+    }
+
+    // 切換圖片封面類型
+    const [imageType , setImageType] = useState(0)
+    const onTypeChange = (e)=>{
+        setImageType(e.target.value)
     }
     return (
         <div className="publish">
@@ -60,7 +79,7 @@ const Publish = () => {
                 <Form
                     labelCol={{ span: 4 }}
                     wrapperCol={{ span: 16 }}
-                    initialValues={{ type: 1 }}
+                    initialValues={{ type: 0 }}
                     onFinish={onFinish}
                 >
                     <Form.Item
@@ -81,6 +100,30 @@ const Publish = () => {
                                 channelList.map(item => <Option key={item.id} value={item.id}>{item.name}</Option>)
                             }
                         </Select>
+                    </Form.Item>
+                    <Form.Item label="封面">
+                        <Form.Item name="type">
+                            <Radio.Group onChange={onTypeChange}>
+                                <Radio value={1}>一張</Radio>
+                                <Radio value={3}>三張</Radio>
+                                <Radio value={0}>無</Radio>
+                            </Radio.Group>
+                        </Form.Item>
+                        {imageType > 0 &&  <Upload
+                            // 文件框樣式
+                            listType="picture-card"
+                            // 控制顯示上傳列表
+                            showUploadList
+                            action={'http://geek.itheima.net/v1_0/upload'}
+                            name='image'
+                            maxCount={imageType}
+                            onChange={onChange}
+                        >
+                            <div style={{ marginTop: 8 }}>
+                                <PlusOutlined />
+                            </div>
+                        </Upload>}
+                       
                     </Form.Item>
                     <Form.Item
                         label="内容"

@@ -11,25 +11,25 @@ import {
     message
 } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import { Link } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import './index.scss';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import { useState } from 'react';
-import { createArticleAPI, getChannelAPI } from '../../api/article';
+import { useEffect, useState } from 'react';
+import { createArticleAPI, getArticleById, getChannelAPI } from '../../api/article';
 import useChannel from '../../hooks/useChannel';
 
 const { Option } = Select
 
 const Publish = () => {
     // 獲取頻道列表
-    const {channelList} = useChannel()
-    
+    const { channelList } = useChannel()
+
 
     const onFinish = (formValue) => {
         console.log(formValue);
         //檢查封面數量是不是根圖片列表一樣
-        if(imageList.length !== imageType){
+        if (imageList.length !== imageType) {
             return message.warning('封面類型根所選圖片數量不一')
         }
         const { content, title, channel_id } = formValue
@@ -38,8 +38,8 @@ const Publish = () => {
             title,
             content,
             cover: {
-                type: imageType ,
-                images:imageList.map(item => item.response.data.url)
+                type: imageType,
+                images: imageList.map(item => item.response.data.url)
             },
             channel_id
         }
@@ -55,10 +55,34 @@ const Publish = () => {
     }
 
     // 切換圖片封面類型
-    const [imageType , setImageType] = useState(0)
-    const onTypeChange = (e)=>{
+    const [imageType, setImageType] = useState(0)
+    const onTypeChange = (e) => {
         setImageType(e.target.value)
     }
+    // 回填數據
+    const [searchParms] = useSearchParams();
+    const articleId = searchParms.get('id');
+    // 獲取實例函數
+    const [form] = Form.useForm()
+    useEffect(() => {
+        // 通過id取得數據
+        async function getArticleDetail() {
+            const res = await getArticleById(articleId);
+            // 回填資料
+            form.setFieldsValue({
+                ...res.data,
+                type:res.data.cover.type
+            });
+            // 回填圖片列表
+            setImageType(res.data.cover.type)
+            // 回填圖片
+            setImageList(res.data.cover.images.map(url=> {
+                return {url}
+            }))
+        }
+        getArticleDetail()
+    }, [articleId])
+
     return (
         <div className="publish">
             <Card
@@ -75,6 +99,7 @@ const Publish = () => {
                     wrapperCol={{ span: 16 }}
                     initialValues={{ type: 0 }}
                     onFinish={onFinish}
+                    form={form}
                 >
                     <Form.Item
                         label="標題"
@@ -103,7 +128,7 @@ const Publish = () => {
                                 <Radio value={0}>無</Radio>
                             </Radio.Group>
                         </Form.Item>
-                        {imageType > 0 &&  <Upload
+                        {imageType > 0 && <Upload
                             // 文件框樣式
                             listType="picture-card"
                             // 控制顯示上傳列表
@@ -112,12 +137,13 @@ const Publish = () => {
                             name='image'
                             maxCount={imageType}
                             onChange={onChange}
+                            fileList={imageList}
                         >
                             <div style={{ marginTop: 8 }}>
                                 <PlusOutlined />
                             </div>
                         </Upload>}
-                       
+
                     </Form.Item>
                     <Form.Item
                         label="内容"

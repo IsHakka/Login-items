@@ -1,16 +1,17 @@
 import { Table, Tag, Space } from 'antd'
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons'
 import img404 from './../../assets/error.png'
-import { Link } from 'react-router-dom'
-import { Card, Breadcrumb, Form, Button, Radio, DatePicker, Select } from 'antd'
+import { Link, useNavigate } from 'react-router-dom'
+import { Card, Breadcrumb, Form, Button, Radio, DatePicker, Select ,Popconfirm} from 'antd'
 import locale from 'antd/es/date-picker/locale/zh_TW'
 import useChannel from '../../hooks/useChannel'
 import { useEffect, useState } from 'react'
-import { getArticleListAPI } from '../../api/article'
+import { delArticleAPI, getArticleListAPI } from '../../api/article'
 const { Option } = Select
 const { RangePicker } = DatePicker
 
 const Article = () => {
+    const navigate = useNavigate()
     const { channelList } = useChannel()
     // 準備列數據
     const columns = [
@@ -44,7 +45,7 @@ const Article = () => {
             title: '評論數',
             dataIndex: 'comment_count'
         },
-        {
+        { 
             title: '點讚數',
             dataIndex: 'like_count'
         },
@@ -53,13 +54,22 @@ const Article = () => {
             render: data => {
                 return (
                     <Space size="middle">
-                        <Button type="primary" shape="circle" icon={<EditOutlined />} />
-                        <Button
-                            type="primary"
-                            danger
-                            shape="circle"
-                            icon={<DeleteOutlined />}
-                        />
+                        <Button type="primary" shape="circle" icon={<EditOutlined />} onClick={()=>navigate(`/publish?id=${data.id}`)}/>
+                        <Popconfirm
+                            title="Delete the task"
+                            description="確定要刪除嗎?"
+                            onConfirm={()=>onConfirm(data)}
+                            okText="Yes"
+                            cancelText="No"
+                        >
+                            <Button
+                                type="primary"
+                                danger
+                                shape="circle"
+                                icon={<DeleteOutlined />}
+                            />
+                        </Popconfirm>
+
                     </Space>
                 )
             }
@@ -74,7 +84,7 @@ const Article = () => {
         begin_pubdate: '',
         end_pubdate: '',
         page: 1,
-        per_page: 4
+        per_page: 8
     })
 
     // 獲取文章列表
@@ -106,12 +116,21 @@ const Article = () => {
     // 分頁
     const onPageChange = (page) => {
         console.log(page)
-        // 修改参数依赖项 引发数据的重新获取列表渲染
+        // 修改依賴項，觸發重新渲染
         setReqData({
             ...reqData,
             page
         })
     }
+
+    // 刪除文章
+    const onConfirm = async(data)=>{
+        await delArticleAPI(data.id)
+        setReqData({
+            ...reqData
+        })
+    }
+    
     return (
 
         <div>

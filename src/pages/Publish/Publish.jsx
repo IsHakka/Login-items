@@ -1,31 +1,20 @@
-import {
-    Card,
-    Breadcrumb,
-    Form,
-    Button,
-    Radio,
-    Input,
-    Upload,
-    Space,
-    Select,
-    message
-} from 'antd';
+import { Card, Breadcrumb, Form, Button, Radio, Input, Upload, Space, Select, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import './index.scss';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { useEffect, useState } from 'react';
-import { createArticleAPI, getArticleById, getChannelAPI } from '../../api/article';
+import { createArticleAPI, getArticleById, getChannelAPI, updateArticleAPI } from '../../api/article';
 import useChannel from '../../hooks/useChannel';
+import { useNavigate } from 'react-router-dom';
 
 const { Option } = Select
 
 const Publish = () => {
     // 獲取頻道列表
     const { channelList } = useChannel()
-
-
+    const navigate = useNavigate();
     const onFinish = (formValue) => {
         console.log(formValue);
         //檢查封面數量是不是根圖片列表一樣
@@ -39,12 +28,28 @@ const Publish = () => {
             content,
             cover: {
                 type: imageType,
-                images: imageList.map(item => item.response.data.url)
+                images: imageList.map(item => {
+                    if (item.response) {
+                        return item.response.data.url
+                    } else {
+                        return item.url
+                    }
+                })
             },
             channel_id
         }
+        // 調用不同接口
+        if (articleId) {
+            // 更新接口
+            updateArticleAPI({ ...reqData, id: articleId })
+            message.success('修改成功!');
+            navigate('/article')
+        } else {
+            createArticleAPI(reqData);
+            message.success('發布成功!');
+            navigate('/article')
+        }
 
-        createArticleAPI(reqData)
     }
     // 上傳回調
     const [imageList, setImageList] = useState([])
@@ -71,17 +76,21 @@ const Publish = () => {
             // 回填資料
             form.setFieldsValue({
                 ...res.data,
-                type:res.data.cover.type
+                type: res.data.cover.type
             });
             // 回填圖片列表
             setImageType(res.data.cover.type)
             // 回填圖片
-            setImageList(res.data.cover.images.map(url=> {
-                return {url}
+            setImageList(res.data.cover.images.map(url => {
+                return { url }
             }))
         }
-        getArticleDetail()
-    }, [articleId])
+        // 有id才用此函數回填
+        if (articleId) {
+            getArticleDetail()
+        }
+
+    }, [articleId, form])
 
     return (
         <div className="publish">
@@ -89,7 +98,7 @@ const Publish = () => {
                 title={
                     <Breadcrumb items={[
                         { title: <Link to={'/'}>首頁</Link> },
-                        { title: '發布文章' },
+                        { title: `${articleId ? '編輯文章' : '發布文章'}` },
                     ]}
                     />
                 }

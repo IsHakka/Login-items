@@ -36,9 +36,20 @@ export function delArticleAPI(id) {
     })
 }
 
+// 更新文章
+
+export function updateArticleAPI(data) {
+    return request({
+        url: `/mp/articles/${data.id}?draft=false`,
+        method: 'PUT',
+        data
+    })
+}
+
 // 獲取文章詳情
 export function getArticleById(id) {
     return request({
         url: `/mp/articles/${id}`
     })
 }
+

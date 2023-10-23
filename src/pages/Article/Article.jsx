@@ -7,11 +7,11 @@ import locale from 'antd/es/date-picker/locale/zh_TW'
 import useChannel from '../../hooks/useChannel'
 import { useEffect, useState } from 'react'
 import { getArticleListAPI } from '../../api/article'
-
 const { Option } = Select
 const { RangePicker } = DatePicker
+
 const Article = () => {
-    const {channelList} = useChannel()
+    const { channelList } = useChannel()
     // 準備列數據
     const columns = [
         {
@@ -30,7 +30,7 @@ const Article = () => {
         {
             title: '狀態',
             dataIndex: 'status',
-            render: data => data === 1 ? <Tag color="warning">待審核</Tag>:<Tag color="success">審核通過</Tag>
+            render: data => data === 1 ? <Tag color="warning">待審核</Tag> : <Tag color="success">審核通過</Tag>
         },
         {
             title: '發布時間',
@@ -65,34 +65,53 @@ const Article = () => {
             }
         }
     ]
-    // 準備表格數據
-    const data = [
-        {
-            id: '8218',
-            comment_count: 0,
-            cover: {
-                images: [],
-            },
-            like_count: 0,
-            pubdate: '2019-03-11 09:00:00',
-            read_count: 2,
-            status: 2,
-            title: '離線解決方案'
-        }
-    ]
+
+    // 篩選功能
+    // 1.準備參數
+    const [reqData, setReqData] = useState({
+        status: '',
+        channel_id: '',
+        begin_pubdate: '',
+        end_pubdate: '',
+        page: 1,
+        per_page: 4
+    })
 
     // 獲取文章列表
-    const [list,setlist] = useState([]);
-    const [count,setCount] = useState(0)
+    const [list, setlist] = useState([]);
+    const [count, setCount] = useState(0)
 
-    useEffect(()=>{
-        async function getList(){
-            const res = await getArticleListAPI()
+    useEffect(() => {
+        async function getList() {
+            const res = await getArticleListAPI(reqData)
             setlist(res.data.results)
             setCount(res.data.total_count)
         }
         getList()
-    },[])
+    }, [reqData])
+
+    // 獲取篩選數據
+    const onFinish = (formValue) => {
+        // 把表單收集到的數據放到參數中(不可變方式)
+        setReqData({
+            ...reqData,
+            channel_id: formValue.channel_id,
+            status: formValue.status,
+            begin_pubdate: formValue.date[0].format('YYYY-MM-DD'),
+            end_pubdate: formValue.date[1].format('YYYY-MM-DD')
+
+        })
+    }
+
+    // 分頁
+    const onPageChange = (page) => {
+        console.log(page)
+        // 修改参数依赖项 引发数据的重新获取列表渲染
+        setReqData({
+            ...reqData,
+            page
+        })
+    }
     return (
 
         <div>
@@ -105,11 +124,11 @@ const Article = () => {
                 }
                 style={{ marginBottom: 20 }}
             >
-                <Form initialValues={{ status: '' }}>
+                <Form initialValues={{ status: '' }} onFinish={onFinish}>
                     <Form.Item label="狀態" name="status">
                         <Radio.Group>
                             <Radio value={''}>全部</Radio>
-                            <Radio value={0}>草稿</Radio>
+                            <Radio value={1}>待審核</Radio>
                             <Radio value={2}>審核通過</Radio>
                         </Radio.Group>
                     </Form.Item>
@@ -122,7 +141,7 @@ const Article = () => {
                             {
                                 channelList.map(item => <Option key={item.id} value={item.id}>{item.name}</Option>)
                             }
-                         
+
                         </Select>
                     </Form.Item>
 
@@ -139,8 +158,12 @@ const Article = () => {
             </Card>
 
             <Card title={`根據條件共查詢到 ${count} 調結果`}>
-                
-                <Table rowKey="id" columns={columns} dataSource={list} />
+
+                <Table rowKey="id" columns={columns} dataSource={list} pagination={{
+                    total: count,
+                    pageSize: reqData.per_page,
+                    onChange: onPageChange
+                }} />
             </Card>
         </div>
     );

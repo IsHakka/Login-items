@@ -1,7 +1,7 @@
 // 用戶相關狀態管理
 import { createSlice } from '@reduxjs/toolkit';
 import { request } from '../../utils/request';
-import { setToken as _setToken, getToken, removeToken } from '../../utils/tokem';
+import { setToken as _setToken, getToken, removeToken } from '../../utils/token';
 
 export const userStore = createSlice({
     name: 'user',

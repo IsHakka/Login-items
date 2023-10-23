@@ -1,5 +1,5 @@
 import React from 'react';
-import { getToken } from '../utils/tokem';
+import { getToken } from '../utils/token';
 import { Navigate } from 'react-router-dom';
 // 有token正常跳轉，無token去登入
 export const AuthRoute = ({children}) => {

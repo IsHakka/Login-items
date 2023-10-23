@@ -15,7 +15,7 @@ import './index.scss';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { useEffect, useState } from 'react';
-import { getChannelAPI } from '../../api/article';
+import { createArticleAPI, getChannelAPI } from '../../api/article';
 
 const { Option } = Select
 
@@ -29,7 +29,23 @@ const Publish = () => {
             setChannelList(res.data.channels)
         }
         getChannelList()
-    })
+    }, [])
+
+    const onFinish = (formValue) => {
+        console.log(formValue);
+        const { content, title, channel_id } = formValue
+        const reqData = {
+            title,
+            content,
+            cover: {
+                type: 0,
+                images: []
+            },
+            channel_id
+        }
+
+        createArticleAPI(reqData)
+    }
     return (
         <div className="publish">
             <Card
@@ -45,6 +61,7 @@ const Publish = () => {
                     labelCol={{ span: 4 }}
                     wrapperCol={{ span: 16 }}
                     initialValues={{ type: 1 }}
+                    onFinish={onFinish}
                 >
                     <Form.Item
                         label="標題"
@@ -68,12 +85,15 @@ const Publish = () => {
                     <Form.Item
                         label="内容"
                         name="content"
-                        rules={[{ required: true, message: '請輸入文章內容' }]}
-                    >  <ReactQuill
+                        rules={[{ required: true, message: '请輸入文章内容' }]}
+                    >
+                        {/* 富文本编辑器 */}
+                        <ReactQuill
                             className="publish-quill"
                             theme="snow"
-                            placeholder="請輸入文章内容"
-                        /></Form.Item>
+                            placeholder="请輸入文章内容"
+                        />
+                    </Form.Item>
 
                     <Form.Item wrapperCol={{ offset: 4 }}>
                         <Space>

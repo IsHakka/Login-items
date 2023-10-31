@@ -23,14 +23,14 @@ const Login = () => {
                     <Form.Item
                         name="mobile"
                         // 多層驗證
-                        rules={[{ required: true, message: '請輸入手機號碼' },
+                        rules={[{ required: true, message: '請輸入學生證' },
                         {
                             // pattern: /^09\d{2}-?\d{3}-?\d{3}$/,
-                            message: '請輸入正確的手機格式'
+                            message: '請輸入正確的格式'
                         }]}>
-                        <Input size="large" placeholder="請輸入手機號碼" />
+                        <Input size="large" placeholder="請輸入學生證" />
                     </Form.Item>
-                    <span>手機:13800000002 驗證碼:246810</span>
+                    <span>學生證:13800000002 驗證碼:246810</span>
                     <Form.Item
                         name="code"
                         rules={[{ required: true, message: '請輸入驗證碼' }]}>

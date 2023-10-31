@@ -2,9 +2,12 @@ import GeekLayout from "../pages/Layout/Layout";
 import Login from "../pages/Login/Login";
 import { createBrowserRouter } from 'react-router-dom';
 import { AuthRoute } from "../components/AuthRoute";
-import Home from "../pages/Home/Home";
-import Article from "../pages/Article/Article";
-import Publish from "../pages/Publish/Publish";
+import { Suspense, lazy } from "react";
+
+// 懶加載
+const Home = lazy(() => import('./../pages/Home/Home.jsx'));
+const Article = lazy(() => import('./../pages/Article/Article.jsx'))
+const Publish = lazy(() => import('./../pages/Publish/Publish.jsx'));
 
 const router = createBrowserRouter([
 
@@ -13,13 +16,13 @@ const router = createBrowserRouter([
         element: <AuthRoute><GeekLayout></GeekLayout></AuthRoute>,
         children: [{
             path: '',
-            element: <Home></Home>
+            element: <Suspense fallback={'加載中'}><Home></Home></Suspense> 
         }, {
             path: 'article',
-            element: <Article></Article>
+            element: <Suspense fallback={'加載中'}><Article></Article></Suspense> 
         }, {
             path: 'publish',
-            element: <Publish></Publish>
+            element: <Suspense fallback={'加載中'}><Publish></Publish></Suspense> 
         }]
     },
     {

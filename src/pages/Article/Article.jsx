@@ -20,7 +20,7 @@ const Article = () => {
             dataIndex: 'cover',
             width: 120,
             render: cover => {
-                return <img src={cover.images[0] || img404} width={80} height={60} alt="" />
+                return <img src={cover.images[0] || img404} width={90} height={60} alt="" />
             }
         },
         {
@@ -176,7 +176,7 @@ const Article = () => {
                 </Form>
             </Card>
 
-            <Card title={`根據條件共查詢到 ${count} 調結果`}>
+            <Card title={`根據條件共查詢到 ${count} 條結果`}>
 
                 <Table rowKey="id" columns={columns} dataSource={list} pagination={{
                     total: count,
